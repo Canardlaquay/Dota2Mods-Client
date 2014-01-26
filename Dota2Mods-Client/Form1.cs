@@ -18,28 +18,27 @@ namespace Dota2Mods_Client
 {
     public partial class Form1 : Form
     {
-        string steamPath = "";
+        string steamPath = ""; //do I really need to re-explain ? :)
         string dotaPath = "";
-        string frotaPath = "";
+        string frotaPath = ""; //frota folder in addons folder
         List<string> rawInfo = new List<string>();
-        SInfo[] serverInfo = new SInfo[50];
+        SInfo[] serverInfo = new SInfo[50]; // struct array
        
         int updateTime = 1000;
-        //BackgroundWorker bw = new BackgroundWorker();
-        //ListView lv = new ListView();
+        
 
 
         public Form1(string steamPath, string dotaPath)
         {
             InitializeComponent();
-            this.steamPath = steamPath;
+            this.steamPath = steamPath; //get 
             this.dotaPath = dotaPath;
             frotaPath = dotaPath + "\\dota\\addons\\Frota";
         }
 
         
 
-        public struct SInfo
+        public struct SInfo //used to parse data for the listview
         {
             public string name;
             public int players;
@@ -52,12 +51,12 @@ namespace Dota2Mods_Client
         private void Form1_Load(object sender, EventArgs e)
         {
             
-            textBox1.Text = steamPath;
+            textBox1.Text = steamPath; 
             textBox2.Text = dotaPath;
-            backgroundWorker1.RunWorkerAsync();
+            backgroundWorker1.RunWorkerAsync(); //worker refreshing server list every "updatetime" (in seconds)
             try
             {
-                label4.Text = GetLocalFrotaVersion(frotaPath);
+                label4.Text = GetLocalFrotaVersion(frotaPath); 
             }
             catch (Exception)
             {
@@ -75,7 +74,7 @@ namespace Dota2Mods_Client
             
         }
 
-        public static string GetLocalFrotaVersion(string frotaPath)
+        public static string GetLocalFrotaVersion(string frotaPath) //reads data from the version.txt (Frota/scripts/version.txt)
         {
             string str = File.ReadAllText(frotaPath + "\\scripts\\version.txt").Replace("\"VersionControl\" {\n    \"version\"   \"", "").Replace("\"\n}", "");
             if (str == "")
@@ -85,18 +84,18 @@ namespace Dota2Mods_Client
             return str;
         }
 
-        public static string GetActualFrotaVersion()
+        public static string GetActualFrotaVersion() //reads data from the version.txt from github
         {
             WebClient wc = new WebClient();
             string str = wc.DownloadString("https://raw2.github.com/ash47/Frota/master/scripts/version.txt");
-            return str.Replace("\"VersionControl\" {\n    \"version\"   \"", "").Replace("\"\n}", "");
+            return str.Replace("\"VersionControl\" {\n    \"version\"   \"", "").Replace("\"\n}", ""); //parses the string
         }
 
 
         public static SInfo[] ParseRawInfo(List<string> list)
         {
             SInfo[] s = new SInfo[50];
-            for (int i = 0; i < list.Count / 8; i++)
+            for (int i = 0; i < list.Count / 8; i++) //each server has 8 lines of info, so Count/8 gets the number of servers
             {
                 s[i].name = list[2 + (8 * i)];
                 s[i].totalplayers = list[3 + (8 * i)];
@@ -111,7 +110,7 @@ namespace Dota2Mods_Client
             return s;
         }
 
-        public static List<string> GetServersFromMap(List<string> list, string map)
+        public static List<string> GetServersFromMap(List<string> list, string map) //query gametracker by map
         {
             HtmlWeb htmlWeb = new HtmlWeb();
 
@@ -148,9 +147,9 @@ namespace Dota2Mods_Client
             
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e) //connect button
         {
-            string cmd = "steam://connect/"+listView1.SelectedItems[0].SubItems[2].Text;
+            string cmd = "steam://connect/"+listView1.SelectedItems[0].SubItems[2].Text; //used to launch dota, and directly connecting to the server
             System.Diagnostics.Process.Start(cmd);
         }
 
@@ -160,12 +159,13 @@ namespace Dota2Mods_Client
             {
                 if (listView1.SelectedItems.Count > 0)
                 {
+                    //this part refreshes the image at the bottom right, with the server info and such
                     webBrowser1.Stop();
                     webBrowser1.DocumentText = "";
                     Uri Url = new Uri("http://cache.www.gametracker.com/components/html0/?host=" + listView1.SelectedItems[0].SubItems[2].Text + "&bgColor=1F2642&fontColor=8790AE&titleBgColor=11172D&titleColor=FFFFFF&borderColor=333333&linkColor=FF9900&borderLinkColor=999999&showMap=0&showCurrPlayers=0&showTopPlayers=0&showBlogs=0&width=260");
                     webBrowser1.Url = null;
                     webBrowser1.Navigate(Url);
-                    //webBrowser1.Refresh();
+                    
                 }
             }
             catch (Exception)
@@ -191,28 +191,25 @@ namespace Dota2Mods_Client
             {
                 rawInfo.Clear();
                 rawInfo = GetServersFromMap(rawInfo, "runehill");
-                rawInfo = GetServersFromMap(rawInfo, "riverofsouls");
-                serverInfo = ParseRawInfo(rawInfo);
+                rawInfo = GetServersFromMap(rawInfo, "riverofsouls"); //gets data from gametracker using map name
+                serverInfo = ParseRawInfo(rawInfo); //parses it in a structured array
             }
             catch (Exception)
             {
 
             }
 
-            System.Threading.Thread.Sleep(updateTime);
+            System.Threading.Thread.Sleep(updateTime); //don't do it so fast, sleep a bit
             
         }
 
 
         private void backgroundWorker1_RunWorkerCompleted_1(object sender, RunWorkerCompletedEventArgs e)
         {
-            // since the BackgroundWorker is designed to use
-            // the form's UI thread on the RunWorkerCompleted
-            // event, you should just be able to add the items
-            // to the list box:
+            //when the background worker finishes (its work, yes), refreshes the Form (can't do it directly from the async worker)
             richTextBox1.Text += "Refreshed server list.\n";
-            int selectedIndex = 0;
-            if (listView1.SelectedIndices.Count > 0)
+            int selectedIndex = 0; 
+            if (listView1.SelectedIndices.Count > 0) //yes, up here (and =0 if none)
             {
                 selectedIndex = listView1.SelectedIndices[0];
             }
@@ -230,27 +227,24 @@ namespace Dota2Mods_Client
                 }
             }
             listView1.Focus();
-            listView1.Items[selectedIndex].Selected = true;
+            listView1.Items[selectedIndex].Selected = true; //reselects last selected index defined up here
             
-            backgroundWorker1.RunWorkerAsync();
-            // the above should not block the UI, if it does
-            // due to some other code, then use the ListBox's
-            // Invoke method:
-            // listBox1.Invoke( new Action( () => listBox1.Items.AddRange( MyList.ToArray() ) ) );
+            backgroundWorker1.RunWorkerAsync(); //loop again
+            
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
-            backgroundWorker2.RunWorkerAsync();
+            backgroundWorker2.RunWorkerAsync(); //run the Frota installation asynchronously
         }
 
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         {
-            backgroundWorker2.WorkerReportsProgress = true;
+            backgroundWorker2.WorkerReportsProgress = true; //reports progress, another way to update the Form in the backgroundworker
             if (File.Exists("master.zip"))
             {
                 File.Delete("master.zip");
-                backgroundWorker2.ReportProgress(10, "Deleted old master.zip (Frota archive).\n");
+                backgroundWorker2.ReportProgress(10, "Deleted old master.zip (Frota archive).\n"); //report(percent, richtextbox text)
             }
             if (Directory.Exists(Path.GetDirectoryName(Application.ExecutablePath) + "\\Frota-master"))
             {
@@ -260,23 +254,23 @@ namespace Dota2Mods_Client
             WebClient webClient = new WebClient();
             
             backgroundWorker2.ReportProgress(30, "Downloading Frota archive...\n");
-            webClient.DownloadFile("https://github.com/ash47/Frota/archive/master.zip", "master.zip");
+            webClient.DownloadFile("https://github.com/ash47/Frota/archive/master.zip", "master.zip"); //downloads the archive from github
             backgroundWorker2.ReportProgress(60, "Finished downloading, now extracting.\n");
-            ZipFile.ExtractToDirectory("master.zip", Path.GetDirectoryName(Application.ExecutablePath));
+            ZipFile.ExtractToDirectory("master.zip", Path.GetDirectoryName(Application.ExecutablePath)); //extracts it
             backgroundWorker2.ReportProgress(70, "Finished extraction.\n");
-            if (Directory.Exists(frotaPath))
+            if (Directory.Exists(frotaPath)) //DELETE EVERYTHING
             {
                 Directory.Delete(frotaPath, true);
                 backgroundWorker2.ReportProgress(80, "Old Frota folder deleted.\n");
             }
             Directory.Move(Path.GetDirectoryName(Application.ExecutablePath) + "\\Frota-master", frotaPath);
-            backgroundWorker2.ReportProgress(100, "Frota is now installed !\n");
+            backgroundWorker2.ReportProgress(100, "Frota is now installed !\n"); //cool
         }
 
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            label4.Text = GetLocalFrotaVersion(frotaPath);
-            MessageBox.Show("Frota is now installed with the last version !");
+            label4.Text = GetLocalFrotaVersion(frotaPath);//update printed Local version (up-left)
+            MessageBox.Show("Frota is now installed with the last version !");//popup
         }
 
         private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -293,10 +287,10 @@ namespace Dota2Mods_Client
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
             updateTime = (int)numericUpDown1.Value * 1000;
-            richTextBox1.Text += "Changed refresh time to " + updateTime.ToString() + ".\n";
+            richTextBox1.Text += "Changed refresh time to " + updateTime.ToString() + ".\n"; //server browser refreshtime
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e) //change steampath from this form, read comments in Form1 to understand, it's basically the same
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -323,7 +317,7 @@ namespace Dota2Mods_Client
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             
-            Application.Exit();
+            Application.Exit();//not sure if I really need this code, or if I really need to comment this one
         }
 
         

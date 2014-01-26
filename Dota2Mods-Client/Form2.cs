@@ -19,35 +19,35 @@ namespace Dota2Mods_Client
             InitializeComponent();
         }
 
-        public string steamPath = "";
-        public string dotaPath = "";
+        public string steamPath = ""; //gets the full path to your steam directory
+        public string dotaPath = ""; // ***                        dota directory
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK) 
             {
                 steamPath = folderBrowserDialog1.SelectedPath;
                 dotaPath = steamPath + "\\SteamApps\\common\\dota 2 beta";
-                if (Directory.Exists(dotaPath))
+                if (Directory.Exists(dotaPath)) //if the dota folder is in the selected steam Folder (remember you can change your SteamApps dir)
                 {
                     label4.Text = dotaPath;
                     if (MessageBox.Show("Dota 2 directory found, would you like to save this path as the default one ?", "Dota 2 directory found, you can go to the next step !", MessageBoxButtons.YesNo) == DialogResult.Yes)
                     {
-                        WriteXML(steamPath, dotaPath);
+                        WriteXML(steamPath, dotaPath); //save config.file, auto-loaded at program's startup 
                     }
                     button3.Enabled = true;
                 }
-                else
+                else //else... yes.
                 {
                     MessageBox.Show("Did not find the Dota 2 directory, select it manually.");
-                    button2.Enabled = true;
+                    button2.Enabled = true; //folderBrowserDialog to set dotaPath
                 }
                 label2.Text = steamPath;
             }
             
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e) //folderBrowserDialog to set dotaPath
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
@@ -61,20 +61,20 @@ namespace Dota2Mods_Client
         {
             this.Visible = false;
             Form1 f1 = new Form1(steamPath, dotaPath);
-            f1.Show();
+            f1.Show(); //Next form !
 
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            if (File.Exists("config.xml"))
+            if (File.Exists("config.xml")) //AUTOLOADING XML
             {
                 if (MessageBox.Show("Saved path found, use it ?", "Config file found !", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     ReadXML(ref steamPath, ref dotaPath);
                     this.Visible = false;
                     Form1 f1 = new Form1(steamPath, dotaPath);
-                    f1.ShowDialog();
+                    f1.ShowDialog(); //if we close the Form1, it returns here, so it's why you're shown the Form2 after exiting
                     this.Visible = false;
                     Application.Exit();
                 }
@@ -82,7 +82,7 @@ namespace Dota2Mods_Client
         }
 
 
-        public static void WriteXML(string steam, string dota)
+        public static void WriteXML(string steam, string dota) //creating config file
         {
             XmlTextWriter myXmlTextWriter = new XmlTextWriter("config.xml", null);
             myXmlTextWriter.Formatting = Formatting.Indented;
@@ -101,7 +101,7 @@ namespace Dota2Mods_Client
 
         }
 
-        public static void ReadXML(ref string steam, ref string dota)
+        public static void ReadXML(ref string steam, ref string dota) //reading config file
         {
             XmlDocument xml = new XmlDocument();
             xml.Load("config.xml");
