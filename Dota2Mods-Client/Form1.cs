@@ -18,8 +18,8 @@ namespace Dota2Mods_Client
 {
     public partial class Form1 : Form
     {
-        string steamPath = ""; //do I really need to re-explain ? :)
-        string dotaPath = "";
+        string steamPath = ""; //do I really need to re-explain ? :) 
+        string dotaPath = ""; // (seriously, it's in Form2)
         string frotaPath = ""; //frota folder in addons folder
         List<string> rawInfo = new List<string>();
         SInfo[] serverInfo = new SInfo[50]; // struct array
