@@ -1,3 +1,3 @@
-Dota 2 Mods GUI
+--Dota 2 Mods GUI
 
-May burn your PC anytime
+May burn your PC
