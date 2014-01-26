@@ -149,8 +149,49 @@ namespace Dota2Mods_Client
 
         private void button1_Click(object sender, EventArgs e) //connect button
         {
-            string cmd = "steam://connect/"+listView1.SelectedItems[0].SubItems[2].Text; //used to launch dota, and directly connecting to the server
-            System.Diagnostics.Process.Start(cmd);
+            if (label4.Text == "Not installed")
+            {
+                if (MessageBox.Show("Frota is not installed, would you like to install it now ?", "Frota directory not found", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    backgroundWorker2.RunWorkerAsync(); //run the Frota installation asynchronously
+                }
+                
+            }
+            else
+            {
+                if (listView1.SelectedItems.Count > 0)
+                {
+                    if (isDotaRunning())
+                    {
+                        string cmd = "steam://connect/" + listView1.SelectedItems[0].SubItems[2].Text; //used to launch dota, and directly connecting to the server
+                        System.Diagnostics.Process.Start(cmd);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Dota is not currently running !");
+                    }
+
+
+                }
+            }
+            
+        }
+
+        public static bool isDotaRunning()
+        {
+            Process[] proc = Process.GetProcessesByName("dota");
+            bool found = false;
+            if (proc.Length > 0)
+            {
+                if (proc[0].ProcessName == "dota")
+                {
+                    found = true;
+                }
+            }
+            
+
+
+            return found;
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
@@ -318,6 +359,12 @@ namespace Dota2Mods_Client
         {
             
             Application.Exit();//not sure if I really need this code, or if I really need to comment this one
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            string cmd = "steam://rungameid/570";
+            System.Diagnostics.Process.Start(cmd);
         }
 
         
